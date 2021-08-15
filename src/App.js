@@ -57,6 +57,10 @@ class App extends React.Component {
   }
 
   componentDidMount = async () => {
+    await this.newGame()
+  }
+
+  newGame = async () => {
     const randomNumbers = this.createRandomNumber()
     await this.setState({
       buttonsDisplay: [
@@ -95,6 +99,9 @@ class App extends React.Component {
           value: randomNumbers[3]
         }
       ],
+      selectFirstNumbers: { number: 0, index: 0 },
+      selectSecondNumbers: { number: 0, index: 0 },
+      selectOperation: null
     })
   }
 
@@ -147,7 +154,12 @@ class App extends React.Component {
 
       const filterDisplay = this.state.buttonsDisplay.filter(button => button.show)
       if (filterDisplay.length === 1) {
-        filterDisplay[0].value === 24 ? alert("Bravo") : alert("Try again")
+        if (filterDisplay[0].value === 24) {
+          alert("Bravo")
+          await this.newGame()
+        } else {
+          alert("Try again")
+        }
       }
     }
   }
