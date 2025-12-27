@@ -3,6 +3,7 @@
 This is a [Next.js](https://nextjs.org) project for the Game 24 web application.
 
 ![alt text](image.png)
+Play game click --> [Play Game 24](https://game-24-lyart.vercel.app/play)
 
 ## Project Structure
 
