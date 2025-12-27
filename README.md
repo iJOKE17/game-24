@@ -2,6 +2,8 @@
 
 This is a [Next.js](https://nextjs.org) project for the Game 24 web application.
 
+![alt text](image.png)
+
 ## Project Structure
 
 ```
