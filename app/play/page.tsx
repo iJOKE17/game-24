@@ -149,19 +149,20 @@ const handleNumberClick = (num: number, idx: number) => {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-400 via-purple-400 to-pink-400 py-10">
-      <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-2xl flex flex-col items-center">
+    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-400 via-purple-400 to-pink-400 py-10 ">
+      <div className="w-full px-2 sm:px-0 flex justify-center">
+        <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-8 w-full max-w-2xl flex flex-col items-center">
         <h1 className="text-4xl font-extrabold text-purple-700 mb-1 text-center">Game 24</h1>
         <p className="text-gray-500 text-center mb-6">Use all 4 numbers and 3 operators to make 24!</p>
 
         {/* Available Numbers */}
         <div className="w-full bg-indigo-50 rounded-xl p-4 mb-4 flex flex-col items-center">
           <div className="text-lg font-semibold text-gray-700 mb-2">Available Numbers</div>
-          <div className="flex gap-4">
+          <div className="flex flex-row flex-wrap gap-2 sm:gap-4 justify-center items-center">
             {numbers.map((num, idx) => (
               <button
                 key={idx}
-                className={`w-14 h-14 rounded-lg text-2xl font-bold shadow-sm transition border-2 cursor-pointer ${
+                className={`w-10 h-10 sm:w-14 sm:h-14 rounded-lg text-lg sm:text-2xl font-bold shadow-sm transition border-2 cursor-pointer ${
                   usedNumbers[idx]
                     ? "bg-gray-200 border-gray-300 text-gray-400"
                     : "bg-white hover:bg-indigo-100 border-indigo-400 text-indigo-700"
@@ -176,39 +177,39 @@ const handleNumberClick = (num: number, idx: number) => {
         </div>
 
         {/* Select Numbers & Operators */}
-        <div className="w-full flex gap-4 mb-4">
+        <div className="w-full flex flex-row flex-wrap gap-2 sm:gap-4 mb-4 justify-center items-center">
           <div className="flex-1 bg-purple-50 rounded-xl p-4 flex flex-col items-center">
             <div className="text-sm font-semibold text-gray-700 mb-2">Select Operators</div>
-            <div className="flex gap-4">
+            <div className="flex flex-row flex-wrap gap-2 sm:gap-4 justify-center items-center">
               {operatorList.map((op) => (
-            <button
-              key={op}
-              className={
-                `w-14 h-14 rounded-lg font-bold flex items-center justify-center text-2xl shadow-sm transition border-2 cursor-pointer ` +
-                (activeSlot.type === "op" && operators[activeSlot.idx] === op
-                  ? "bg-purple-400 text-white border-purple-600"
-                  : "bg-purple-200 text-purple-800 border-purple-300 hover:bg-purple-300")
-              }
-              onClick={() => handleOperatorClick(op)}
-              type="button"
-              aria-label={`Select operator ${op}`}
-            >
-              {op === '*' ? '×' : op}
-            </button>
+                <button
+                  key={op}
+                  className={
+                    `w-10 h-10 sm:w-14 sm:h-14 rounded-lg font-bold flex items-center justify-center text-lg sm:text-2xl shadow-sm transition border-2 cursor-pointer ` +
+                    (activeSlot.type === "op" && operators[activeSlot.idx] === op
+                      ? "bg-purple-400 text-white border-purple-600"
+                      : "bg-purple-200 text-purple-800 border-purple-300 hover:bg-purple-300")
+                  }
+                  onClick={() => handleOperatorClick(op)}
+                  type="button"
+                  aria-label={`Select operator ${op}`}
+                >
+                  {op === '*' ? '×' : op}
+                </button>
               ))}
             </div>
           </div>
         </div>
 
         {/* Build Your Expression */}
-        <div className="w-full bg-indigo-50 rounded-xl p-4 mb-6 flex flex-col items-center">
+        <div className="w-full bg-indigo-50 rounded-xl p-3 sm:p-4 mb-6 flex flex-col items-center">
           <div className="text-sm font-semibold text-gray-700 mb-2">Build Your Expression</div>
           <div className="flex items-center gap-2 justify-center relative">
             {inputs.map((val, i) => (
               <React.Fragment key={i}>
                 <div className="relative">
                   <input
-                    className={`w-12 h-12 text-center border-2 rounded-lg text-xl font-bold cursor-pointer bg-white shadow-sm transition focus:outline-none ${
+                    className={`w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 text-center border-2 rounded-lg text-xl font-bold cursor-pointer bg-white shadow-sm transition focus:outline-none ${
                       activeSlot.type === "num" && activeSlot.idx === i
                         ? "border-indigo-500 ring-2 ring-indigo-300"
                         : "border-gray-300"
@@ -292,24 +293,24 @@ const handleNumberClick = (num: number, idx: number) => {
         </div>
 
         {/* Check and New Game Buttons */}
-        <div className="flex gap-4 w-full justify-center mt-2">
+        <div className="flex flex-row flex-wrap gap-2 sm:gap-4 w-full justify-center mt-2 items-center">
           <button
-            className="flex-1 px-6 py-3 bg-green-500 text-white rounded-lg font-bold text-lg shadow hover:bg-green-600 transition cursor-pointer"
+            className="flex-1 min-w-[120px] sm:min-w-[160px] px-3 py-2 sm:px-6 sm:py-3 bg-green-500 text-white rounded-lg font-bold text-base sm:text-lg shadow hover:bg-green-600 transition cursor-pointer"
             onClick={handleCheck}
             type="button"
           >
             <span className="inline-flex items-center">
-              <CheckIcon className="mr-2 w-5 h-5" color="#fff" />
+              <CheckIcon className="mr-2 w-4 h-4 sm:w-5 sm:h-5" color="#fff" />
               Check Answer
             </span>
           </button>
           <button
-            className="flex-1 px-6 py-3 bg-blue-500 text-white rounded-lg font-bold text-lg shadow hover:bg-blue-600 transition cursor-pointer"
+            className="flex-1 min-w-[120px] sm:min-w-[160px] px-3 py-2 sm:px-6 sm:py-3 bg-blue-500 text-white rounded-lg font-bold text-base sm:text-lg shadow hover:bg-blue-600 transition cursor-pointer"
             onClick={handleNewGame}
             type="button"
           >
             <span className="inline-flex items-center">
-              <ReloadIcon className="w-5 h-5 mr-2" color="#fff" />
+              <ReloadIcon className="w-4 h-4 sm:w-5 sm:h-5 mr-2" color="#fff" />
               New Game
             </span>
           </button>
@@ -317,6 +318,7 @@ const handleNumberClick = (num: number, idx: number) => {
         {resultMsg && (
           <div className="mt-4 text-xl font-semibold text-center">{resultMsg}</div>
         )}
+        </div>
       </div>
     </main>
   );
