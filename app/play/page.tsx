@@ -1,8 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import CheckIcon from "../component/checkIcon";
 import ReloadIcon from "../component/reload";
+import CelebrationAnimation from "../component/CelebrationAnimation";
+import ResultModal from "../component/ResultModal";
+import GameTimer from "../component/GameTimer";
 
 // Play Page: 24 Game
 // ---------------------------------------------
@@ -32,9 +35,12 @@ const Page = () => {
     return numbers;
   }
 
-  const [numbers, setNumbers] = useState<number[]>(() =>
-    getUniqueRandomNumbers(4, 1, 9)
-  );
+  // Initialize as null so server and client render the same placeholder (avoids hydration mismatch from Math.random())
+  const [numbers, setNumbers] = useState<number[] | null>(null);
+  useEffect(() => {
+    setNumbers(getUniqueRandomNumbers(4, 1, 9));
+    gameStartTimeRef.current = Date.now();
+  }, []);
   const [usedNumbers, setUsedNumbers] = useState<boolean[]>([
     false,
     false,
@@ -57,6 +63,10 @@ const Page = () => {
     idx: number;
   }>({ type: "num", idx: 0 });
   const [resultMsg, setResultMsg] = useState<string | null>(null);
+  const [thinkingSeconds, setThinkingSeconds] = useState(0);
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [gameKey, setGameKey] = useState(0);
+  const gameStartTimeRef = useRef<number>(Date.now());
 
   // Evaluate the expression
   function evaluateExpression(
@@ -83,12 +93,18 @@ const Page = () => {
   }
 
   const handleCheck = () => {
+    const elapsed = Math.round((Date.now() - gameStartTimeRef.current) / 1000);
     const val = evaluateExpression(inputs, operators);
     if (val === null) {
+      setThinkingSeconds(elapsed);
       setResultMsg("Please complete the expression.");
     } else if (Math.abs(val - 24) < 1e-6) {
+      setThinkingSeconds(elapsed);
       setResultMsg("🎉 Success! You made 24!");
+      setShowCelebration(true);
+      setTimeout(() => setShowCelebration(false), 4100);
     } else {
+      setThinkingSeconds(elapsed);
       setResultMsg(`❌ Not 24. Result: ${val}`);
     }
   };
@@ -100,6 +116,10 @@ const Page = () => {
     setOperators([null, null, null]);
     setActiveSlot({ type: "num", idx: 0 });
     setResultMsg(null);
+    setThinkingSeconds(0);
+    setShowCelebration(false);
+    gameStartTimeRef.current = Date.now();
+    setGameKey((k) => k + 1);
   };
 
   // Handle number click
@@ -115,8 +135,8 @@ const handleNumberClick = (num: number, idx: number) => {
     const newUsed = [...usedNumbers];
     newUsed[idx] = true;
     // If previous number existed, mark it as unused
-    if (prevNum !== null) {
-        const prevIdx = numbers.findIndex((n, i) => n === prevNum);
+    if (prevNum !== null && numbers) {
+        const prevIdx = numbers.findIndex((n) => n === prevNum);
         if (prevIdx !== -1) newUsed[prevIdx] = false;
     }
     setUsedNumbers(newUsed);
@@ -149,28 +169,31 @@ const handleNumberClick = (num: number, idx: number) => {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-400 via-purple-400 to-pink-400 py-10 ">
+    <main className="flex items-center justify-center bg-[#faf9f5]  ">
+      <CelebrationAnimation visible={showCelebration} />
       <div className="w-full px-2 sm:px-0 flex justify-center">
         <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-8 w-full max-w-2xl flex flex-col items-center">
-        <h1 className="text-4xl font-extrabold text-purple-700 mb-1 text-center">Game 24</h1>
         <p className="text-gray-500 text-center mb-6">Use all 4 numbers and 3 operators to make 24!</p>
+
+    {/* Timer */}
+        <GameTimer resetKey={gameKey} />
 
         {/* Available Numbers */}
         <div className="w-full bg-indigo-50 rounded-xl p-4 mb-4 flex flex-col items-center">
-          <div className="text-lg font-semibold text-gray-700 mb-2">Available Numbers</div>
+          <div className="text-sm font-semibold text-gray-700 mb-2">Available Numbers</div>
           <div className="flex flex-row flex-wrap gap-2 sm:gap-4 justify-center items-center">
-            {numbers.map((num, idx) => (
+            {(numbers ?? [0, 0, 0, 0]).map((num, idx) => (
               <button
                 key={idx}
                 className={`w-10 h-10 sm:w-14 sm:h-14 rounded-lg text-lg sm:text-2xl font-bold shadow-sm transition border-2 cursor-pointer ${
-                  usedNumbers[idx]
+                  !numbers || usedNumbers[idx]
                     ? "bg-gray-200 border-gray-300 text-gray-400"
                     : "bg-white hover:bg-indigo-100 border-indigo-400 text-indigo-700"
                 }`}
-                disabled={usedNumbers[idx]}
-                onClick={() => handleNumberClick(num, idx)}
+                disabled={!numbers || usedNumbers[idx]}
+                onClick={() => numbers && handleNumberClick(num, idx)}
               >
-                {num}
+                {numbers ? num : "?"}
               </button>
             ))}
           </div>
@@ -234,10 +257,10 @@ const handleNumberClick = (num: number, idx: number) => {
                         setInputs(newInputs);
 
                         // Mark the number as unused
-                        const numIdx = numbers.findIndex(
+                        const numIdx = numbers?.findIndex(
                           (n, idx) => n === val && usedNumbers[idx]
                         );
-                        if (numIdx !== -1) {
+                        if (numIdx !== undefined && numIdx !== -1) {
                           const newUsed = [...usedNumbers];
                           newUsed[numIdx] = false;
                           setUsedNumbers(newUsed);
@@ -315,11 +338,17 @@ const handleNumberClick = (num: number, idx: number) => {
             </span>
           </button>
         </div>
-        {resultMsg && (
-          <div className="mt-4 text-xl font-semibold text-center">{resultMsg}</div>
-        )}
         </div>
       </div>
+
+      {resultMsg && (
+        <ResultModal
+          message={resultMsg}
+          thinkingSeconds={thinkingSeconds}
+          onClose={() => setResultMsg(null)}
+          onNewGame={() => { setResultMsg(null); handleNewGame(); }}
+        />
+      )}
     </main>
   );
 };

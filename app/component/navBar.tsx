@@ -1,19 +1,21 @@
 
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function NavBar() {
 	return (
-		<nav className="w-full fixed top-0 left-0 z-50 bg-white/0 backdrop-blur border-b border-black/5">
-			<div className="max-w-screen-xl mx-auto flex items-center justify-between py-3 px-6">
-				{/* Logo */}
-				<Link href="/" className="font-bold text-2xl text-white tracking-wide no-underline">
-					24 Game
+		<nav className="w-full z-50 bg-white/0 backdrop-blur">
+			<div className="max-w-screen-xl mx-auto flex items-center justify-between py-1">
+				<Link href="/" className="no-underline">
+					<Image
+						src="/logo-removebg-preview-crop.png"
+						alt="Game 24 Logo"
+						width={120}
+						height={0}
+						className="object-contain h-auto"
+						priority
+					/>
 				</Link>
-				{/* Menu */}
-				<div className="flex gap-8 items-center">
-					<Link href="/play" className="text-white font-medium no-underline text-lg transition-colors hover:text-blue-600">Play</Link>
-					<Link href="/rules" className="text-white font-medium no-underline text-lg transition-colors hover:text-blue-600">Rules</Link>
-				</div>
 			</div>
 		</nav>
 	);
