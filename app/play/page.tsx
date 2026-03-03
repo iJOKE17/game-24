@@ -20,6 +20,12 @@ import GameTimer from "../component/GameTimer";
 // ---------------------------------------------
 
 const operatorList = ["+", "-", "*", "/"];
+const operatorSymbols: Record<string, string> = {
+  "+": "+",
+  "-": "-",
+  "*": "x",
+  "/": "÷",
+}
 
 const Page = () => {
   function getUniqueRandomNumbers(
@@ -220,7 +226,7 @@ const handleNumberClick = (num: number, idx: number) => {
                   type="button"
                   aria-label={`Select operator ${op}`}
                 >
-                  {op === '*' ? '×' : op}
+                  {operatorSymbols[op]}
                 </button>
               ))}
             </div>
