@@ -10,6 +10,14 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-roboto-mono);
   --font-mono: var(--font-roboto-mono);
+  --font-nunito: var(--font-nunito);
+}
+
+.font-nunito {
+  font-family: var(--font-nunito), sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
 }
 
 @media (prefers-color-scheme: dark) {

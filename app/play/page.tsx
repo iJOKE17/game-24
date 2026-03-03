@@ -172,10 +172,13 @@ const handleNumberClick = (num: number, idx: number) => {
     <main className="flex items-center justify-center bg-[#faf9f5]  ">
       <CelebrationAnimation visible={showCelebration} />
       <div className="w-full px-2 sm:px-0 flex justify-center">
-        <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-8 w-full max-w-2xl flex flex-col items-center">
-        <p className="text-gray-500 text-center mb-6">Use all 4 numbers and 3 operators to make 24!</p>
+        <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-6 w-full max-w-2xl flex flex-col items-center">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-indigo-700 text-center mb-1">
+            Make 24
+          </h1>
+          <p className="text-gray-500 text-center mb-6">Use all 4 numbers and 3 operators to make 24!</p>
 
-    {/* Timer */}
+        {/* Timer */}
         <GameTimer resetKey={gameKey} />
 
         {/* Available Numbers */}
