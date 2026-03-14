@@ -6,6 +6,7 @@ import ReloadIcon from "./reload";
 interface ResultModalProps {
   message: string;
   thinkingSeconds: number;
+  isGameWon: boolean;
   onClose: () => void;
   onNewGame: () => void;
 }
@@ -20,6 +21,7 @@ function formatTime(seconds: number): string {
 const ResultModal = ({
   message,
   thinkingSeconds,
+  isGameWon,
   onClose,
   onNewGame,
 }: ResultModalProps) => {
@@ -72,13 +74,15 @@ const ResultModal = ({
         </div>
 
         <div className="flex gap-3 mt-1 w-full">
-          <button
-            type="button"
-            className="flex-1 px-4 py-2 bg-indigo-500 text-white rounded-lg font-semibold hover:bg-indigo-600 transition cursor-pointer"
-            onClick={onClose}
-          >
-            Keep Playing
-          </button>
+          {!isGameWon && (
+            <button
+              type="button"
+              className="flex-1 px-4 py-2 bg-indigo-500 text-white rounded-lg font-semibold hover:bg-indigo-600 transition cursor-pointer"
+              onClick={onClose}
+            >
+              Keep Playing
+            </button>
+          )}
           <button
             type="button"
             className="flex-1 flex items-center justify-center gap-1 px-4 py-2 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition cursor-pointer"

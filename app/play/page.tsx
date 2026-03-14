@@ -6,6 +6,9 @@ import ReloadIcon from "../component/reload";
 import CelebrationAnimation from "../component/CelebrationAnimation";
 import ResultModal from "../component/ResultModal";
 import GameTimer from "../component/GameTimer";
+import { useSession } from "next-auth/react";
+import { saveGameRecord } from "../../lib/gameHistory";
+import { recordGamePlay, recordGameWin } from "../actions/stats";
 
 // Play Page: 24 Game
 // ---------------------------------------------
@@ -23,11 +26,26 @@ const operatorList = ["+", "-", "*", "/"];
 const operatorSymbols: Record<string, string> = {
   "+": "+",
   "-": "-",
-  "*": "x",
+  "*": "×",
   "/": "÷",
+};
+
+function buildExpressionString(
+  nums: (number | null)[],
+  ops: (string | null)[]
+): string {
+  if (nums.some((n) => n === null) || ops.some((o) => o === null)) return "";
+  return nums
+    .map((n, i) => {
+      const part = `${n}`;
+      return i < 3 ? `${part} ${operatorSymbols[ops[i]!] ?? ops[i]} ` : part;
+    })
+    .join("");
 }
 
 const Page = () => {
+  const { data: session } = useSession();
+
   function getUniqueRandomNumbers(
     count: number,
     min: number,
@@ -111,12 +129,28 @@ const Page = () => {
       setShowCelebration(true);
       setIsGameWon(true); // stop timer
       setTimeout(() => setShowCelebration(false), 4100);
+      if (numbers) {
+        const expression = buildExpressionString(inputs, operators);
+        saveGameRecord({
+          timeInSec: elapsed,
+          numbers: [...numbers],
+          expression,
+        });
+        if (session?.user) {
+          recordGameWin({
+            timeInSec: elapsed,
+            numbers: [...numbers],
+            expression,
+          });
+        }
+      }
     } else {
       setThinkingSeconds(elapsed);
       setResultMsg(`❌ Not 24. Result: ${val}`);
     }
   };
   const handleNewGame = useCallback(() => {
+    if (session?.user) recordGamePlay();
     const newNums = getUniqueRandomNumbers(4, 1, 9);
     setNumbers(newNums);
     setUsedNumbers([false, false, false, false]);
@@ -129,7 +163,7 @@ const Page = () => {
     setIsGameWon(false);
     gameStartTimeRef.current = Date.now();
     setGameKey((k) => k + 1);
-  }, []);
+  }, [session?.user]);
 
   // Handle number click
 const handleNumberClick = (num: number, idx: number) => {
@@ -370,6 +404,7 @@ const handleNumberClick = (num: number, idx: number) => {
         <ResultModal
           message={resultMsg}
           thinkingSeconds={thinkingSeconds}
+          isGameWon={isGameWon}
           onClose={() => setResultMsg(null)}
           onNewGame={() => { setResultMsg(null); handleNewGame(); }}
         />

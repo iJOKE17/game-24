@@ -4,17 +4,37 @@ import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { getUserStats, type UserStats } from "../actions/stats";
 
 export default function StatsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const [stats, setStats] = useState<UserStats | null>(null);
+  const [statsError, setStatsError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (status === "unauthenticated") {
       router.replace("/login");
     }
   }, [status, router]);
+
+  useEffect(() => {
+    if (status !== "authenticated") return;
+    let cancelled = false;
+    setLoading(true);
+    getUserStats().then(({ stats: s, error }) => {
+      if (!cancelled) {
+        setStats(s ?? null);
+        setStatsError(error ?? null);
+      }
+      setLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [status]);
 
   if (status === "loading") {
     return (
@@ -30,12 +50,16 @@ export default function StatsPage() {
 
   const { user } = session;
 
-  // Placeholder stats – replace with real data when you have a backend/db
-  const stats = [
-    { label: "Games played", value: "—", icon: "🎲" },
-    { label: "Rounds won", value: "—", icon: "🏆" },
-    { label: "Best time (sec)", value: "—", icon: "⏱️" },
-    { label: "Current streak", value: "—", icon: "🔥" },
+  const gamesPlayed = stats?.gamesPlayed ?? 0;
+  const roundsWon = stats?.roundsWon ?? 0;
+  const bestTimeSec = stats?.bestTimeSec ?? null;
+  const streak = stats?.currentStreak ?? 0;
+
+  const statRows = [
+    { label: "Games played", value: gamesPlayed > 0 ? String(gamesPlayed) : "—", icon: "🎲" },
+    { label: "Rounds won", value: roundsWon > 0 ? String(roundsWon) : "—", icon: "🏆" },
+    { label: "Best time (sec)", value: bestTimeSec != null ? String(bestTimeSec) : "—", icon: "⏱️" },
+    { label: "Current streak", value: streak > 0 ? String(streak) : "—", icon: "🔥" },
   ];
 
   return (
@@ -82,8 +106,16 @@ export default function StatsPage() {
             <span aria-hidden>📊</span>
             Your stats
           </h2>
+          {statsError && (
+            <p className="text-sm text-amber-600 mb-3">{statsError}</p>
+          )}
+          {loading ? (
+            <div className="py-6 flex justify-center">
+              <div className="w-8 h-8 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin" aria-hidden />
+            </div>
+          ) : (
           <ul className="grid grid-cols-2 gap-3">
-            {stats.map(({ label, value, icon }) => (
+            {statRows.map(({ label, value, icon }) => (
               <li
                 key={label}
                 className="flex flex-col gap-1 p-3 rounded-xl bg-[#faf9f5] border border-gray-100"
@@ -96,8 +128,9 @@ export default function StatsPage() {
               </li>
             ))}
           </ul>
+          )}
           <p className="text-xs text-gray-400 mt-3">
-            Stats will be saved when you play while logged in.
+            Stats are saved to your account when you make 24 while logged in.
           </p>
         </div>
 
