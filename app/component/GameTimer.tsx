@@ -11,22 +11,44 @@ function formatTimer(seconds: number): string {
 
 interface GameTimerProps {
   resetKey: number;
+  paused?: boolean;
 }
 
-const GameTimer = ({ resetKey }: GameTimerProps) => {
+const GameTimer = ({ resetKey, paused = false }: GameTimerProps) => {
   const [seconds, setSeconds] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Reset and start/stop based on resetKey and paused
   useEffect(() => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
     setSeconds(0);
-    intervalRef.current = setInterval(() => {
-      setSeconds((prev) => prev + 1);
-    }, 1000);
+    if (!paused) {
+      intervalRef.current = setInterval(() => {
+        setSeconds((prev) => prev + 1);
+      }, 1000);
+    }
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, [resetKey]);
+
+  // When paused (e.g. correct answer), stop the timer
+  useEffect(() => {
+    if (paused && intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    } else if (!paused && !intervalRef.current && resetKey >= 0) {
+      intervalRef.current = setInterval(() => {
+        setSeconds((prev) => prev + 1);
+      }, 1000);
+    }
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [paused]);
 
   return (
     <div className="flex items-center gap-2 mb-5 px-4 py-2 bg-indigo-50 rounded-full border border-indigo-200 shadow-sm">

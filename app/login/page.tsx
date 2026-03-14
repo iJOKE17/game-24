@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { Metadata } from "next";
+import { signIn } from "next-auth/react";
 
 /* ---------- tiny reusable input ---------- */
 function Field({
@@ -104,6 +104,10 @@ export default function LoginPage() {
     e.preventDefault();
   }
 
+  function handleGoogleSignIn() {
+    signIn("google", { callbackUrl: "/play" });
+  }
+
   return (
     <main className="flex items-center justify-center h-full bg-[#faf9f5] px-4 py-12">
       <div className="w-full max-w-3xl grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -150,7 +154,7 @@ export default function LoginPage() {
           {/* OAuth */}
           <div className="flex flex-col gap-2">
             <div className="grid grid-cols-2 gap-2">
-              <OAuthButton label="Google" icon={<GoogleIcon />} />
+              <OAuthButton label="Google" icon={<GoogleIcon />} onClick={handleGoogleSignIn} />
               <OAuthButton label="GitHub" icon={<GitHubIcon />} />
             </div>
             <div className="flex items-center gap-3 my-1">

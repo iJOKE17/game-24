@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import CheckIcon from "../component/checkIcon";
 import ReloadIcon from "../component/reload";
 import CelebrationAnimation from "../component/CelebrationAnimation";
@@ -72,6 +72,7 @@ const Page = () => {
   const [thinkingSeconds, setThinkingSeconds] = useState(0);
   const [showCelebration, setShowCelebration] = useState(false);
   const [gameKey, setGameKey] = useState(0);
+  const [isGameWon, setIsGameWon] = useState(false);
   const gameStartTimeRef = useRef<number>(Date.now());
 
   // Evaluate the expression
@@ -108,13 +109,14 @@ const Page = () => {
       setThinkingSeconds(elapsed);
       setResultMsg("🎉 Success! You made 24!");
       setShowCelebration(true);
+      setIsGameWon(true); // stop timer
       setTimeout(() => setShowCelebration(false), 4100);
     } else {
       setThinkingSeconds(elapsed);
       setResultMsg(`❌ Not 24. Result: ${val}`);
     }
   };
-  const handleNewGame = () => {
+  const handleNewGame = useCallback(() => {
     const newNums = getUniqueRandomNumbers(4, 1, 9);
     setNumbers(newNums);
     setUsedNumbers([false, false, false, false]);
@@ -124,9 +126,10 @@ const Page = () => {
     setResultMsg(null);
     setThinkingSeconds(0);
     setShowCelebration(false);
+    setIsGameWon(false);
     gameStartTimeRef.current = Date.now();
     setGameKey((k) => k + 1);
-  };
+  }, []);
 
   // Handle number click
 const handleNumberClick = (num: number, idx: number) => {
@@ -174,6 +177,19 @@ const handleNumberClick = (num: number, idx: number) => {
     setActiveSlot({ type: "op", idx });
   };
 
+  // Escape starts a new game (same as clicking New Game)
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setResultMsg(null);
+        handleNewGame();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [handleNewGame]);
+
+
   return (
     <main className="flex items-center justify-center bg-[#faf9f5]  ">
       <CelebrationAnimation visible={showCelebration} />
@@ -184,8 +200,8 @@ const handleNumberClick = (num: number, idx: number) => {
           </h1>
           <p className="text-gray-500 text-center mb-6">Use all 4 numbers and 3 operators to make 24!</p>
 
-        {/* Timer */}
-        <GameTimer resetKey={gameKey} />
+        {/* Timer (stops when expression is full and answer is correct) */}
+        <GameTimer resetKey={gameKey} paused={isGameWon} />
 
         {/* Available Numbers */}
         <div className="w-full bg-indigo-50 rounded-xl p-4 mb-4 flex flex-col items-center">

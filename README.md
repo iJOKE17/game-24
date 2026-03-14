@@ -77,7 +77,7 @@ Open [http://localhost:3000](http://localhost:3000). The app redirects to `/play
 - **Celebration** — Lottie animation on success
 - **Rules** — In-app rules page
 - **About & Contract** — Info and terms pages
-- **Login** — Login page (OAuth-style UI)
+- **Login** — Login page with **Google OAuth** ([setup guide](docs/GOOGLE_LOGIN_SETUP.md))
 - **Responsive UI** — Reusable components, TypeScript, Tailwind
 
 ## Customization
